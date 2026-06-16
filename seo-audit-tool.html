@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEO Audit Tool — Beckham Studio</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #111; min-height: 100vh; padding: 2rem 1rem; }
+  .container { max-width: 720px; margin: 0 auto; }
+  .header { margin-bottom: 2rem; }
+  .header-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .logo { font-size: 17px; font-weight: 500; color: #111; }
+  .tag { font-size: 11px; color: #666; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 2px 8px; }
+  .sub { font-size: 13px; color: #666; }
+  .card { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+  .section-label { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 10px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: #666; }
+  input, select, textarea { font-size: 14px; padding: 8px 10px; border-radius: 8px; border: 1px solid #ddd; background: #fafafa; color: #111; width: 100%; font-family: inherit; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid #111; outline-offset: 1px; }
+  textarea { resize: vertical; min-height: 72px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 20px; border-radius: 8px; border: 1px solid #111; background: #111; color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
+  .btn:hover { opacity: 0.85; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-ghost { background: #fff; color: #111; }
+  .btn-ghost:hover { background: #f5f5f3; opacity: 1; }
+  .btn-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .status { font-size: 13px; color: #666; display: flex; align-items: center; gap: 8px; }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #ddd; border-top-color: #111; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error { color: #c0392b; font-size: 13px; margin-top: 8px; }
+  .report { margin-top: 1.5rem; }
+  .report-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px; }
+  .client-badge { display: inline-flex; align-items: center; gap: 6px; background: #f5f5f3; border: 1px solid #e8e8e8; border-radius: 99px; padding: 4px 12px; font-size: 12px; color: #666; }
+  .copy-btn { font-size: 12px; padding: 5px 12px; border-radius: 6px; border: 1px solid #e0e0e0; background: #fff; color: #666; cursor: pointer; font-family: inherit; }
+  .copy-btn:hover { background: #f5f5f3; }
+  .exec-box { background: #f9f9f8; border: 1px solid #e8e8e8; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .exec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .exec-title { font-size: 13px; font-weight: 500; }
+  .priority-pill { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 99px; }
+  .pill-high { background: #fde8e8; color: #922; }
+  .pill-mid { background: #fef3cd; color: #7a5c00; }
+  .pill-low { background: #e6f4ea; color: #2d6a4f; }
+  .exec-text { font-size: 13px; color: #555; line-height: 1.7; }
+  .section-block { border: 1px solid #e8e8e8; border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+  .section-head { display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; background: #f9f9f8; cursor: pointer; user-select: none; }
+  .section-head:hover { background: #f0f0ee; }
+  .section-head-left { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: #111; }
+  .score-pill { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 99px; }
+  .score-high { background: #e6f4ea; color: #2d6a4f; }
+  .score-mid { background: #fef3cd; color: #7a5c00; }
+  .score-low { background: #fde8e8; color: #922; }
+  .chev { font-size: 12px; color: #999; transition: transform 0.2s; display: inline-block; }
+  .chev.open { transform: rotate(180deg); }
+  .section-body { display: none; padding: 12px 14px; font-size: 13px; color: #555; line-height: 1.7; border-top: 1px solid #f0f0ee; }
+  .section-body.open { display: block; }
+  .sub-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin: 0 0 4px; }
+  ul.audit-list { margin: 0 0 12px; padding-left: 16px; }
+  ul.audit-list li { margin-bottom: 5px; }
+  ul.audit-list:last-child { margin-bottom: 0; }
+  .rec li { color: #111; }
+  .meta { font-size: 11px; color: #aaa; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; text-align: center; }
+  @media (max-width: 500px) { .grid-2 { grid-template-columns: 1fr; } .exec-header { flex-direction: column; align-items: flex-start; gap: 6px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-row">
+      <span class="logo">Beckham Studio</span>
+      <span class="tag">SEO Audit Tool</span>
+    </div>
+    <p class="sub">Enter client details to generate a professional SEO audit report powered by Claude.</p>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Client information</div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Business name</label>
+        <input id="biz" placeholder="e.g. Coastal Law Group" />
+      </div>
+      <div class="field">
+        <label>Website URL</label>
+        <input id="url" placeholder="e.g. coastallawgroup.com" />
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Industry / niche</label>
+        <select id="industry">
+          <option value="">Select industry...</option>
+          <option>Law firm</option>
+          <option>Medical practice</option>
+          <option>Financial advisor</option>
+          <option>Dental practice</option>
+          <option>Real estate</option>
+          <option>Accounting firm</option>
+          <option>Consulting</option>
+          <option>Other professional services</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Target city / region</label>
+        <input id="region" placeholder="e.g. Newport Beach, CA" />
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:12px;">
+      <label>Top competitors (optional)</label>
+      <input id="competitors" placeholder="e.g. smithlegal.com, joneslawoc.com" />
+    </div>
+    <div class="field">
+      <label>What have you noticed about their current site? (optional)</label>
+      <textarea id="notes" placeholder="e.g. No blog, slow load times, not mobile-friendly, no Google Business profile..."></textarea>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" id="runBtn" onclick="runAudit()">&#9670; Generate audit report</button>
+    <button class="btn btn-ghost" id="clearBtn" onclick="clearAll()" style="display:none;">&#8635; Start over</button>
+    <span class="status" id="status"></span>
+  </div>
+  <div class="error" id="errorMsg" style="display:none;"></div>
+  <div class="report" id="report" style="display:none;"></div>
+</div>
+
+<script>
+let auditData = null;
+
+async function runAudit() {
+  const biz = document.getElementById('biz').value.trim();
+  const url = document.getElementById('url').value.trim();
+  const industry = document.getElementById('industry').value;
+  const region = document.getElementById('region').value.trim();
+  const competitors = document.getElementById('competitors').value.trim();
+  const notes = document.getElementById('notes').value.trim();
+  if (!biz || !url || !industry) { showError('Please fill in business name, URL, and industry.'); return; }
+  const btn = document.getElementById('runBtn');
+  const status = document.getElementById('status');
+  document.getElementById('errorMsg').style.display = 'none';
+  btn.disabled = true;
+  status.innerHTML = '<span class="spinner"></span> Generating audit...';
+  const prompt = `You are a senior SEO and digital marketing consultant producing a professional audit report for a boutique professional services client.\n\nClient: ${biz}\nWebsite: ${url}\nIndustry: ${industry}\nTarget region: ${region || 'Southern California'}\n${competitors ? `Known competitors: ${competitors}` : ''}\n${notes ? `Site observations: ${notes}` : ''}\n\nProduce a structured SEO audit with exactly 6 sections. For each section provide a score 1-10, 2-3 findings, and 2-3 specific actionable recommendations.\n\nSections:\n1. On-Page SEO\n2. Local SEO & Google Business Profile\n3. Technical SEO\n4. Content Strategy\n5. Backlink Profile & Authority\n6. Competitor Gap Analysis\n\nAlso provide an overall priority score (1-10, where 10 = urgent) and a 3-4 sentence executive summary.\n\nRespond ONLY in this JSON format, no markdown:\n{"client":"${biz}","url":"${url}","overall_score":<number>,"executive_summary":"<string>","sections":[{"title":"<string>","score":<number>,"findings":["<string>","<string>"],"recommendations":["<string>","<string>"]}]}`;
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 1000, messages: [{ role: "user", content: prompt }] })
+    });
+    const data = await res.json();
+    const raw = data.content?.map(b => b.text || '').join('').replace(/```json|```/g, '').trim();
+    auditData = JSON.parse(raw);
+    renderReport(auditData);
+    status.innerHTML = '';
+    document.getElementById('clearBtn').style.display = 'inline-flex';
+  } catch(e) {
+    showError('Something went wrong. Please try again.');
+    status.innerHTML = '';
+    btn.disabled = false;
+  }
+}
+
+function scoreClass(s) { return s >= 7 ? 'score-high' : s >= 4 ? 'score-mid' : 'score-low'; }
+function scoreLabel(s) { return s >= 7 ? 'Good' : s >= 4 ? 'Needs work' : 'Critical'; }
+function priorityLabel(s) { return s >= 8 ? 'High priority' : s >= 5 ? 'Moderate priority' : 'Low priority'; }
+function priorityClass(s) { return s >= 8 ? 'pill-high' : s >= 5 ? 'pill-mid' : 'pill-low'; }
+
+function renderReport(d) {
+  const date = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const icons = ['&#128196;','&#128205;','&#9881;','&#9998;','&#128279;','&#128202;'];
+  const sections = d.sections.map((s, i) => `
+    <div class="section-block">
+      <div class="section-head" onclick="toggleSec(${i})">
+        <span class="section-head-left">${icons[i] || ''} ${s.title}</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="score-pill ${scoreClass(s.score)}">${s.score}/10 — ${scoreLabel(s.score)}</span>
+          <span class="chev" id="chev-${i}">&#9660;</span>
+        </div>
+      </div>
+      <div class="section-body" id="body-${i}">
+        <p class="sub-label">Findings</p>
+        <ul class="audit-list">${s.findings.map(f => `<li>${f}</li>`).join('')}</ul>
+        <p class="sub-label">Recommendations</p>
+        <ul class="audit-list rec">${s.recommendations.map(r => `<li>${r}</li>`).join('')}</ul>
+      </div>
+    </div>`).join('');
+  document.getElementById('report').innerHTML = `
+    <div class="report-topbar">
+      <span class="client-badge">&#127970; ${d.client} &nbsp;&middot;&nbsp; ${date}</span>
+      <button class="copy-btn" onclick="copyReport()">&#128203; Copy report</button>
+    </div>
+    <div class="exec-box">
+      <div class="exec-header">
+        <span class="exec-title">Executive summary</span>
+        <span class="priority-pill ${priorityClass(d.overall_score)}">${priorityLabel(d.overall_score)}</span>
+      </div>
+      <p class="exec-text">${d.executive_summary}</p>
+    </div>
+    ${sections}
+    <div class="meta">Beckham Studio SEO Audit Tool &middot; Powered by Claude &middot; beckhamstudio.com</div>`;
+  document.getElementById('report').style.display = 'block';
+  toggleSec(0);
+}
+
+function toggleSec(i) {
+  const body = document.getElementById(`body-${i}`);
+  const chev = document.getElementById(`chev-${i}`);
+  if (!body) return;
+  const open = body.classList.toggle('open');
+  if (chev) chev.classList.toggle('open', open);
+}
+
+function copyReport() {
+  if (!auditData) return;
+  let t = `SEO AUDIT — ${auditData.client}\n${auditData.url}\n\nEXECUTIVE SUMMARY\n${auditData.executive_summary}\n\n`;
+  auditData.sections.forEach(s => { t += `${s.title.toUpperCase()} — ${s.score}/10\nFindings:\n${s.findings.map(f=>`• ${f}`).join('\n')}\nRecommendations:\n${s.recommendations.map(r=>`• ${r}`).join('\n')}\n\n`; });
+  navigator.clipboard.writeText(t).then(() => { const b = document.querySelector('.copy-btn'); b.textContent = '✓ Copied'; setTimeout(() => { b.innerHTML = '&#128203; Copy report'; }, 2000); });
+}
+
+function clearAll() {
+  ['biz','url','region','competitors','notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('industry').value = '';
+  document.getElementById('report').style.display = 'none';
+  document.getElementById('clearBtn').style.display = 'none';
+  document.getElementById('runBtn').disabled = false;
+  auditData = null;
+}
+
+function showError(msg) { const e = document.getElementById('errorMsg'); e.textContent = msg; e.style.display = 'block'; }
+</script>
+</body>
+</html>
